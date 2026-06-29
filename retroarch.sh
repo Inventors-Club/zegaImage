@@ -75,58 +75,58 @@ usermod -aG video,input,audio,render "${USER_NAME}"
 #     as enable_hotkey, then KEY_F4 to quit. Defaults vary by build.
 # ---------------------------------------------------------------------------
 echo "[3/4] Patching retroarch.cfg for sane defaults..."
-
-USER_HOME="/home/${USER_NAME}"
-RA_CFG="${USER_HOME}/.config/retroarch/retroarch.cfg"
-
-# Ensure config exists by running retroarch once with --menu to create it.
-if [[ ! -f "${RA_CFG}" ]]; then
-    sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
-    sudo -u "${USER_NAME}" /usr/bin/retroarch --menu --features 2>/dev/null || true
-fi
-
-# set_kv: replace existing key=val or append if missing
-set_kv() {
-    local key="$1" val="$2"
-    if grep -q "^${key} =" "${RA_CFG}"; then
-        sed -i "s|^${key} = .*|${key} = \"${val}\"|" "${RA_CFG}"
-    else
-        echo "${key} = \"${val}\"" >> "${RA_CFG}"
-    fi
-}
-
-# User-writable core directory.
-sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
-set_kv libretro_directory             "~/.config/retroarch/cores"
-set_kv core_updater_buildbot_cores_url \
-    "http://buildbot.libretro.com/nightly/linux/aarch64/latest/"
-
-# Kiosk-style: don't let RetroArch save its in-memory config back to
-# retroarch.cfg on exit. Without this, RetroArch overwrites our cfg
-# (and reverts edits like menu_driver=rgui back to xmb) every time it
-# shuts down. The cfg is now the authoritative source — changes the
-# user makes via RetroArch's menu UI are forgotten on exit, which is
-# what we want for an immutable kiosk image.
-set_kv config_save_on_exit            "false"
-
-# Force RGUI menu driver — XMB is the upstream default but it doesn't
-# render legibly on a 320x240 panel. RGUI is the bitmap-font, made-for-
-# tile-displays menu we've tested.
-set_kv menu_driver                    "rgui"
-
-# Hide the Wi-Fi menu — without ConnMan it doesn't work, and we now
-# rely on pre-baked /boot/firmware/custom.toml for student wifi setup.
-set_kv menu_show_wifi                 "false"
-
-# Show the Bluetooth menu item — works out of the box on Trixie since
-# BlueZ is the standard stack (no swap needed). Lets students pair
-# gamepads, BT headphones, BT keyboards from the device itself.
-# Especially useful since our audio chip is hardware-faulty: BT
-# headphones become the practical audio output.
-set_kv menu_show_bluetooth            "true"
-# Same pattern as wifi_driver — default "null" makes the menu inert.
-set_kv bluetooth_driver               "bluez"
-
+#
+# USER_HOME="/home/${USER_NAME}"
+# RA_CFG="${USER_HOME}/.config/retroarch/retroarch.cfg"
+#
+# # Ensure config exists by running retroarch once with --menu to create it.
+# if [[ ! -f "${RA_CFG}" ]]; then
+#     sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
+#     sudo -u "${USER_NAME}" /usr/bin/retroarch --menu --features 2>/dev/null || true
+# fi
+#
+# # set_kv: replace existing key=val or append if missing
+# set_kv() {
+#     local key="$1" val="$2"
+#     if grep -q "^${key} =" "${RA_CFG}"; then
+#         sed -i "s|^${key} = .*|${key} = \"${val}\"|" "${RA_CFG}"
+#     else
+#         echo "${key} = \"${val}\"" >> "${RA_CFG}"
+#     fi
+# }
+#
+# # User-writable core directory.
+# sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
+# set_kv libretro_directory             "~/.config/retroarch/cores"
+# set_kv core_updater_buildbot_cores_url \
+#     "http://buildbot.libretro.com/nightly/linux/aarch64/latest/"
+#
+# # Kiosk-style: don't let RetroArch save its in-memory config back to
+# # retroarch.cfg on exit. Without this, RetroArch overwrites our cfg
+# # (and reverts edits like menu_driver=rgui back to xmb) every time it
+# # shuts down. The cfg is now the authoritative source — changes the
+# # user makes via RetroArch's menu UI are forgotten on exit, which is
+# # what we want for an immutable kiosk image.
+# set_kv config_save_on_exit            "false"
+#
+# # Force RGUI menu driver — XMB is the upstream default but it doesn't
+# # render legibly on a 320x240 panel. RGUI is the bitmap-font, made-for-
+# # tile-displays menu we've tested.
+# set_kv menu_driver                    "rgui"
+#
+# # Hide the Wi-Fi menu — without ConnMan it doesn't work, and we now
+# # rely on pre-baked /boot/firmware/custom.toml for student wifi setup.
+# set_kv menu_show_wifi                 "false"
+#
+# # Show the Bluetooth menu item — works out of the box on Trixie since
+# # BlueZ is the standard stack (no swap needed). Lets students pair
+# # gamepads, BT headphones, BT keyboards from the device itself.
+# # Especially useful since our audio chip is hardware-faulty: BT
+# # headphones become the practical audio output.
+# set_kv menu_show_bluetooth            "true"
+# # Same pattern as wifi_driver — default "null" makes the menu inert.
+# set_kv bluetooth_driver               "bluez"
+#
 # Default the file browser to ~/roms so users don't navigate from /
 # every time they Load Content. ROM subdirs by system: snes, nes,
 # genesis, gb, gba, pygame (for our shim).
@@ -137,70 +137,70 @@ sudo -u "${USER_NAME}" mkdir -p \
     "${USER_HOME}/roms/gb" \
     "${USER_HOME}/roms/gba" \
     "${USER_HOME}/roms/pygame"
-set_kv rgui_browser_directory         "~/roms"
-set_kv content_directory              "~/roms"
-set_kv input_remapping_directory      "~/.config/retroarch/remaps"
-
-# Symlink any system-installed cores into the user cores dir so they
-# remain visible after we move libretro_directory.
-for src in /usr/lib/libretro/*.so; do
-    [[ -f "$src" ]] || continue
-    sudo -u "${USER_NAME}" ln -sf "$src" "${USER_HOME}/.config/retroarch/cores/$(basename "$src")"
-done
-
-# In-game close-content hotkey: SELECT (KEY_RIGHTSHIFT, "rshift") +
-# START (KEY_ENTER, "enter") closes the running content and returns to
-# RetroArch's main menu, where everything is properly sized for the
-# 320x240 panel.
+# set_kv rgui_browser_directory         "~/roms"
+# set_kv content_directory              "~/roms"
+# set_kv input_remapping_directory      "~/.config/retroarch/remaps"
 #
-# We DON'T use the Quick Menu overlay (input_menu_toggle) because RGUI's
-# bitmap font gets non-uniformly scaled when overlaid on cores with
-# unusual viewports — text comes out squished. Closing the game and
-# going back to the panel-native main menu sidesteps the problem.
+# # Symlink any system-installed cores into the user cores dir so they
+# # remain visible after we move libretro_directory.
+# for src in /usr/lib/libretro/*.so; do
+#     [[ -f "$src" ]] || continue
+#     sudo -u "${USER_NAME}" ln -sf "$src" "${USER_HOME}/.config/retroarch/cores/$(basename "$src")"
+# done
 #
-# DON'T use input_exit_emulator either: that kills the RetroArch process
-# and relies on systemd Restart= to bring it back, which is slow.
-set_kv input_enable_hotkey            "rshift"
-set_kv input_close_content            "enter"
-set_kv input_menu_toggle              "nul"
-set_kv input_exit_emulator            "nul"
-
-# IMPORTANT: don't touch video_fullscreen, video_context_driver,
-# aspect_ratio_index, video_force_aspect, or video_aspect_ratio* on
-# this hardware. RetroArch's auto-detection of all those Just Works
-# for the 320x240 ILI9341 panel; any attempt to pin them produces
-# either a blank panel, a stretched menu, or both. The working
-# defaults are: video_fullscreen=false, aspect_ratio_index=22 (Custom
-# viewport), auto-detected video_context_driver. Trust them.
+# # In-game close-content hotkey: SELECT (KEY_RIGHTSHIFT, "rshift") +
+# # START (KEY_ENTER, "enter") closes the running content and returns to
+# # RetroArch's main menu, where everything is properly sized for the
+# # 320x240 panel.
+# #
+# # We DON'T use the Quick Menu overlay (input_menu_toggle) because RGUI's
+# # bitmap font gets non-uniformly scaled when overlaid on cores with
+# # unusual viewports — text comes out squished. Closing the game and
+# # going back to the panel-native main menu sidesteps the problem.
+# #
+# # DON'T use input_exit_emulator either: that kills the RetroArch process
+# # and relies on systemd Restart= to bring it back, which is slow.
+# set_kv input_enable_hotkey            "rshift"
+# set_kv input_close_content            "enter"
+# set_kv input_menu_toggle              "nul"
+# set_kv input_exit_emulator            "nul"
 #
-# DO set menu_rgui_aspect_ratio_lock = 1 (Fit Screen) — this is
-# RGUI-specific and only affects how the menu is scaled relative to
-# the current video viewport. Without it, opening the main menu after
-# a game with an unusual viewport shows squished text. (We don't use
-# the in-game Quick Menu overlay either way — see the input_close_content
-# block below.)
-# menu_rgui_aspect_ratio is INTEGER-valued (0-6, indexes into a fixed
-# preset list), NOT a string. Don't pass "4:3" / "Auto" / etc — it
-# breaks rendering and the panel goes black.
-# 0 = 4:3 (default), 1 = 16:9, 2 = 16:9C, 3 = 3:2, 4 = 3:2C, 5 = 5:3, 6 = 5:3C
-set_kv menu_rgui_aspect_ratio         "0"
-# 1 = Fit Screen: preserves the menu's bitmap font aspect (so text
-# isn't squished) at the cost of possible letterboxing. Value 3 (Fill
-# Screen) stretches and distorts the font; 2 (Integer Scale) limits to
-# Nx scaling. On our 320x240 4:3 panel with a 4:3 menu, "Fit" results
-# in no letterbox AND no distortion.
-set_kv menu_rgui_aspect_ratio_lock    "1"
-
-# Custom viewport: 264x240 centered on the 320x240 panel matches the
-# Zega Mame Boy 2.7's case cutout. The 28px on each side fall behind
-# the case bezel and are invisible. Vendor's Buster image used the
-# same dimensions (hdmi_cvt = 264 240 ...).
-set_kv aspect_ratio_index             "22"
-set_kv custom_viewport_width          "264"
-set_kv custom_viewport_height         "240"
-set_kv custom_viewport_x              "28"
-set_kv custom_viewport_y              "0"
-
+# # IMPORTANT: don't touch video_fullscreen, video_context_driver,
+# # aspect_ratio_index, video_force_aspect, or video_aspect_ratio* on
+# # this hardware. RetroArch's auto-detection of all those Just Works
+# # for the 320x240 ILI9341 panel; any attempt to pin them produces
+# # either a blank panel, a stretched menu, or both. The working
+# # defaults are: video_fullscreen=false, aspect_ratio_index=22 (Custom
+# # viewport), auto-detected video_context_driver. Trust them.
+# #
+# # DO set menu_rgui_aspect_ratio_lock = 1 (Fit Screen) — this is
+# # RGUI-specific and only affects how the menu is scaled relative to
+# # the current video viewport. Without it, opening the main menu after
+# # a game with an unusual viewport shows squished text. (We don't use
+# # the in-game Quick Menu overlay either way — see the input_close_content
+# # block below.)
+# # menu_rgui_aspect_ratio is INTEGER-valued (0-6, indexes into a fixed
+# # preset list), NOT a string. Don't pass "4:3" / "Auto" / etc — it
+# # breaks rendering and the panel goes black.
+# # 0 = 4:3 (default), 1 = 16:9, 2 = 16:9C, 3 = 3:2, 4 = 3:2C, 5 = 5:3, 6 = 5:3C
+# set_kv menu_rgui_aspect_ratio         "0"
+# # 1 = Fit Screen: preserves the menu's bitmap font aspect (so text
+# # isn't squished) at the cost of possible letterboxing. Value 3 (Fill
+# # Screen) stretches and distorts the font; 2 (Integer Scale) limits to
+# # Nx scaling. On our 320x240 4:3 panel with a 4:3 menu, "Fit" results
+# # in no letterbox AND no distortion.
+# set_kv menu_rgui_aspect_ratio_lock    "1"
+#
+# # Custom viewport: 264x240 centered on the 320x240 panel matches the
+# # Zega Mame Boy 2.7's case cutout. The 28px on each side fall behind
+# # the case bezel and are invisible. Vendor's Buster image used the
+# # same dimensions (hdmi_cvt = 264 240 ...).
+# set_kv aspect_ratio_index             "22"
+# set_kv custom_viewport_width          "264"
+# set_kv custom_viewport_height         "240"
+# set_kv custom_viewport_x              "28"
+# set_kv custom_viewport_y              "0"
+#
 # ---------------------------------------------------------------------------
 # Step 4. systemd unit.
 #
