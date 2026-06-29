@@ -37,8 +37,11 @@ curl -fLo .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inv
 curl -fLo roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
 
 source $HOME/.local/bin/env
-uv venv --python 3.12 roms/pygame/.venv
-uv add  --python      roms/pygame/.venv/bin/python pygame-ce
+cd roms/pygame
+uv init --no-package
+uv venv --python 3.12
+uv add pygame-ce
+cd "$HOME"
 
 zega-pygame-rescan
 
