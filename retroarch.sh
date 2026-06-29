@@ -86,19 +86,19 @@ if [[ ! -f "${RA_CFG}" ]]; then
 fi
 
 # set_kv: replace existing key=val or append if missing
-set_kv() {
-    local key="$1" val="$2"
-    if grep -q "^${key} =" "${RA_CFG}"; then
-        sed -i "s|^${key} = .*|${key} = \"${val}\"|" "${RA_CFG}"
-    else
-        echo "${key} = \"${val}\"" >> "${RA_CFG}"
-    fi
-}
+# set_kv() {
+#     local key="$1" val="$2"
+#     if grep -q "^${key} =" "${RA_CFG}"; then
+#         sed -i "s|^${key} = .*|${key} = \"${val}\"|" "${RA_CFG}"
+#     else
+#         echo "${key} = \"${val}\"" >> "${RA_CFG}"
+#     fi
+# }
 
 # User-writable core directory.
 sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
-set_kv libretro_directory             "~/.config/retroarch/cores"
-set_kv core_updater_buildbot_cores_url \
+# set_kv libretro_directory             "~/.config/retroarch/cores"
+# set_kv core_updater_buildbot_cores_url \
     "http://buildbot.libretro.com/nightly/linux/aarch64/latest/"
 
 # Kiosk-style: don't let RetroArch save its in-memory config back to
@@ -112,20 +112,20 @@ set_kv core_updater_buildbot_cores_url \
 # Force RGUI menu driver — XMB is the upstream default but it doesn't
 # render legibly on a 320x240 panel. RGUI is the bitmap-font, made-for-
 # tile-displays menu we've tested.
-set_kv menu_driver                    "rgui"
+# set_kv menu_driver                    "rgui"
 
 # Hide the Wi-Fi menu — without ConnMan it doesn't work, and we now
 # rely on pre-baked /boot/firmware/custom.toml for student wifi setup.
-set_kv menu_show_wifi                 "false"
+# set_kv menu_show_wifi                 "false"
 
 # Show the Bluetooth menu item — works out of the box on Trixie since
 # BlueZ is the standard stack (no swap needed). Lets students pair
 # gamepads, BT headphones, BT keyboards from the device itself.
 # Especially useful since our audio chip is hardware-faulty: BT
 # headphones become the practical audio output.
-set_kv menu_show_bluetooth            "true"
+# set_kv menu_show_bluetooth            "true"
 # Same pattern as wifi_driver — default "null" makes the menu inert.
-set_kv bluetooth_driver               "bluez"
+# set_kv bluetooth_driver               "bluez"
 
 # Default the file browser to ~/roms so users don't navigate from /
 #every time they Load Content. ROM subdirs by system: snes, nes,
@@ -137,9 +137,9 @@ sudo -u "${USER_NAME}" mkdir -p \
     "${USER_HOME}/roms/gb" \
     "${USER_HOME}/roms/gba" \
     "${USER_HOME}/roms/pygame"
-set_kv rgui_browser_directory         "~/roms"
-set_kv content_directory              "~/roms"
-set_kv input_remapping_directory      "~/.config/retroarch/remaps"
+# set_kv rgui_browser_directory         "~/roms"
+# set_kv content_directory              "~/roms"
+# set_kv input_remapping_directory      "~/.config/retroarch/remaps"
 
 # Symlink any system-installed cores into the user cores dir so they
 # remain visible after we move libretro_directory.
@@ -160,10 +160,10 @@ done
 #
 # DON'T use input_exit_emulator either: that kills the RetroArch process
 # and relies on systemd Restart= to bring it back, which is slow.
-set_kv input_enable_hotkey            "rshift"
-set_kv input_close_content            "enter"
-set_kv input_menu_toggle              "nul"
-set_kv input_exit_emulator            "nul"
+# set_kv input_enable_hotkey            "rshift"
+# set_kv input_close_content            "enter"
+# set_kv input_menu_toggle              "nul"
+# set_kv input_exit_emulator            "nul"
 
 # # IMPORTANT: don't touch video_fullscreen, video_context_driver,
 # # aspect_ratio_index, video_force_aspect, or video_aspect_ratio* on
@@ -190,7 +190,7 @@ set_kv input_exit_emulator            "nul"
 # # Nx scaling. On our 320x240 4:3 panel with a 4:3 menu, "Fit" results
 # # in no letterbox AND no distortion.
 # set_kv menu_rgui_aspect_ratio_lock    "1"
-#
+# #
 # # Custom viewport: 264x240 centered on the 320x240 panel matches the
 # # Zega Mame Boy 2.7's case cutout. The 28px on each side fall behind
 # # the case bezel and are invisible. Vendor's Buster image used the

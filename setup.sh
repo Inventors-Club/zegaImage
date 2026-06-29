@@ -119,4 +119,6 @@ Next steps:
     Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b39m on your computer) file.
 
 Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | sh\x1b[0;39m
+Rebooting.
 EOF
+sudo reboot
