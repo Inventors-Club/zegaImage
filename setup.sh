@@ -39,7 +39,7 @@ curl -fLo roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inv
 source $HOME/.local/bin/env
 cd roms/pygame
 uv init --no-package
-uv venv --python 3.12
+uv venv --clear --python 3.12
 uv add pygame-ce
 cd "$HOME"
 
