@@ -8,7 +8,7 @@ if [[ $EUID -eq 0 ]]; then
     echo "Run as your regular user (NOT sudo). The script will sudo where needed." >&2
     exit 1
 fi
-sudo apt install -y git zsh retroarch ripgrep device-tree-compiler python3 python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger > /dev/null 
+sudo apt install -y git zsh retroarch ripgrep device-tree-compiler python3 cargo python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger > /dev/null 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -16,6 +16,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 runScript(){
     curl "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
 }
+sudo curl -fLo /usr/local/bin/zega-pygame-rescan "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/zega-pygame-rescan"
+chmod +x /usr/local/bin/zega-pygame-rescan
 for subscript in display audio buttons retroarch firstrun pygame-shim wifi-template; do
     runScript "$subscript";
 done;
@@ -26,21 +28,9 @@ curl -o roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inven
 uv venv --python 3.12 roms/pygame/.venv
 uv add  --python      roms/pygame/.venv/bin/python pygame-ce
 
-curl -fLO "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/zega-pygame-rescan"
-curl -fLO "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/pygame_shim.c"
-chmod +x ./zega-pygame-rescan
-./zega-pygame-rescan
+zega-pygame-rescan
 
 echo "export PATH=\"\$PATH:/home/$ME/.cargo/bin\"" >> .zshrc
-
-PATH="$PATH:/home/$ME/.cargo/bin"
-
-cargo install bob-nvim tree-sitter-cli 
-bob install stable
-git config --global url."git@github.com:".insteadOf "https://github.com/"
-git clone https://github.com/NvChad/starter ~/.config/nvim
-sed -i '/require("lazy").setup({/a \  git = { timeout = 300 },\n  concurrency = 1,' ~/.config/nvim/lua/config/lazy.lua
-nvim --headless "+Lazy! sync" +MasonInstallAll +TSInstallAll +qa
 
 cat > .tmux.conf << 'EOF'
 set -s set-clipboard on
@@ -137,7 +127,8 @@ Next steps:
     Run \x1b[1;35m sudo nmcli connection add type wifi ifname wlan0 con-name "<Network Nickname>" ssid "<Network SSID (Real name)>" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<Network Password>"\x1b[0;39m
     Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b39m on your computer) file.
 
-For other scripts to run without ssh, check out the \x1b[1;36m/boot/firmware/firstrun\x1b[0;39m folder. Any .sh files in here will run at startup.
+Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | sh\x1b[0;39m
+For other scripts to run without ssh, have a look at the \x1b[1;36m/boot/firmware/firstrun\x1b[0;39m folder. Any .sh files in here will run at startup.
 
 Rebooting.
 EOF
