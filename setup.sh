@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# INSTRUCTIONS:
+# Use the raspberry pi imager to setup the disk with Raspberry Pi OS Lite Trixie 64 bit (for Pi Zero 2 W)
+# Please take the pi out of the gameboy, or at least take the back off. The shell is a wifi cave, and download speed is abysmal.
+#
 #curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | bash
 ME=$(whoami)
 set -euo pipefail
@@ -8,7 +12,14 @@ if [[ $EUID -eq 0 ]]; then
     echo "Run as your regular user (NOT sudo). The script will sudo where needed." >&2
     exit 1
 fi
-sudo apt-get install -y git zsh retroarch ripgrep device-tree-compiler python3 cargo python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger
+sudo tee /etc/NetworkManager/conf.d/wifi-powersave-off.conf > /dev/null <<'EOF'
+[connection]
+wifi.powersave = 2
+EOF
+sudo systemctl restart NetworkManager
+sleep 3
+
+sudo apt-get install -y -o "Acquire::Retries=3" git zsh retroarch ripgrep device-tree-compiler python3 python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -17,7 +28,7 @@ runScript(){
     curl -fL "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
 }
 sudo curl -fLo /usr/local/bin/zega-pygame-rescan "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/zega-pygame-rescan"
-chmod +x /usr/local/bin/zega-pygame-rescan
+sudo chmod +x /usr/local/bin/zega-pygame-rescan
 for subscript in display audio buttons retroarch firstrun pygame-shim wifi-template; do
     runScript "$subscript";
 done;
@@ -29,8 +40,6 @@ uv venv --python 3.12 roms/pygame/.venv
 uv add  --python      roms/pygame/.venv/bin/python pygame-ce
 
 zega-pygame-rescan
-
-echo "export PATH=\"\$PATH:/home/$ME/.cargo/bin\"" >> .zshrc
 
 cat > .tmux.conf << 'EOF'
 set -s set-clipboard on

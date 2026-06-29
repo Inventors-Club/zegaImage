@@ -7,6 +7,7 @@ if [[ $EUID -eq 0 ]]; then
 fi
 
 cd "$HOME"
+sudo apt-get install -y -o "Acquire::Retries=3" cargo
 export PATH="$PATH:$HOME/.cargo/bin"
 
 echo "extras.sh: this will take 30-60 minutes and download multiple GB."
