@@ -17,7 +17,7 @@ trap 'echo; echo "ERROR: failed at line $LINENO. Last command: $BASH_COMMAND" >&
 
 [[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
 
-USER_NAME="student"
+USER_NAME=$(whoami)
 id "${USER_NAME}" >/dev/null 2>&1 \
     || { echo "ERROR: user '${USER_NAME}' does not exist." >&2; exit 1; }
 
@@ -127,7 +127,7 @@ set_kv menu_show_bluetooth            "true"
 # Same pattern as wifi_driver — default "null" makes the menu inert.
 set_kv bluetooth_driver               "bluez"
 
-Default the file browser to ~/roms so users don't navigate from /
+# Default the file browser to ~/roms so users don't navigate from /
 every time they Load Content. ROM subdirs by system: snes, nes,
 genesis, gb, gba, pygame (for our shim).
 sudo -u "${USER_NAME}" mkdir -p \
