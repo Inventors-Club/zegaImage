@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-sudo snap install --classic nvim
-sudo snap install --classic yazi
+cargo install bob-nvim
+bob install stable
 git clone https://github.com/NvChad/starter ~/.config/nvim && nvim
