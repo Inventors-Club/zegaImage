@@ -1,13 +1,13 @@
-#/bin/bash
-#curl -LsSf https://raw.githubusercontent/Inventors-Club/zegaImage/refs/heads/main/setup.sh | sh
-ME=whoami
+#!/usr/bin/env bash
+#curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | sh
+ME=$(whoami)
 
 sudo apt install -y git zsh snapd retroarch device-tree-compiler python3 python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux > /dev/null 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-sudo chsh -s (which zsh)
+sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-curl --output-dir -O scripts "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/{audio,buttons,firstrun,display,pygame-shim,retroarch,wifi-template}.sh" 
+curl -O --output-dir scripts "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/{audio,buttons,firstrun,display,pygame-shim,retroarch,wifi-template}.sh" 
 
 sudo scripts/display.sh; sudo scripts/audio.sh; sudo scripts/buttons.sh; sudo scripts/retroarch.sh; sudo scripts/firstrun.sh; sudo scripts/pygame-shim.sh; sudo scripts/wifi-template.sh
 
@@ -15,7 +15,7 @@ curl -o "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/m
 curl -o "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py" roms/pygame/platformer.py
 
 uv venv --python 3.12 roms/pygame
-uv add  --python      roms/pygame/.venv pygame-ce
+uv add  --python      roms/pygame/.venv/bin/python pygame-ce
 
 echo "export PATH=\"\$PATH:/home/$ME/snap/bin:/home/$ME/.cargo/bin\"" >> .zshrc
 
@@ -107,9 +107,12 @@ xterm-ghostty|ghostty|Ghostty,
         xr=\EP>\\|[ -~]+a\E\\,
 EOF
 
-echo << 'EOF'
+cat << 'EOF'
 Next steps: 
 
 \033[1mWifi:\033[0m
     Run \x1b[1;35m sudo nmcli connection add type wifi ifname wlan0 con-name "<Network Nickname>" ssid "<Network SSID (Real name)>" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<Network Password>"\x1b[0;39m
+    Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b39m on your computer) file.
+
+Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | sh\x1b[0;39m
 EOF

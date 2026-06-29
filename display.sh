@@ -57,15 +57,15 @@ echo
 # Step 1. Prerequisites
 # ---------------------------------------------------------------------------
 echo "[1/7] Installing packages..."
-# apt-get update -qq
-# apt-get install -y \
-#     device-tree-compiler \
-#     python3 \
-#     python3-spidev \
-#     python3-gpiozero \
-#     wget \
-#     ca-certificates \
-#     >/dev/null
+apt-get update -qq
+apt-get install -y \
+    device-tree-compiler \
+    python3 \
+    python3-spidev \
+    python3-gpiozero \
+    wget \
+    ca-certificates \
+    >/dev/null
 
 # ---------------------------------------------------------------------------
 # Step 2. Firmware blob (panel-mipi-dbi-spi.bin) -- required for driver probe
