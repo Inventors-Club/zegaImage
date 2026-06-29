@@ -17,7 +17,7 @@ trap 'echo; echo "ERROR: failed at line $LINENO. Last command: $BASH_COMMAND" >&
 
 [[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
 
-USER_NAME=$(whoami)
+USER_NAME=${$SUDO_USER:-$USER}
 id "${USER_NAME}" >/dev/null 2>&1 \
     || { echo "ERROR: user '${USER_NAME}' does not exist." >&2; exit 1; }
 
@@ -107,7 +107,7 @@ set_kv core_updater_buildbot_cores_url \
 # shuts down. The cfg is now the authoritative source — changes the
 # user makes via RetroArch's menu UI are forgotten on exit, which is
 # what we want for an immutable kiosk image.
-set_kv config_save_on_exit            "false"
+# set_kv config_save_on_exit            "false"
 
 # Force RGUI menu driver — XMB is the upstream default but it doesn't
 # render legibly on a 320x240 panel. RGUI is the bitmap-font, made-for-
@@ -128,8 +128,8 @@ set_kv menu_show_bluetooth            "true"
 set_kv bluetooth_driver               "bluez"
 
 # Default the file browser to ~/roms so users don't navigate from /
-every time they Load Content. ROM subdirs by system: snes, nes,
-genesis, gb, gba, pygame (for our shim).
+#every time they Load Content. ROM subdirs by system: snes, nes,
+#genesis, gb, gba, pygame (for our shim).
 sudo -u "${USER_NAME}" mkdir -p \
     "${USER_HOME}/roms/snes" \
     "${USER_HOME}/roms/nes" \
@@ -165,41 +165,41 @@ set_kv input_close_content            "enter"
 set_kv input_menu_toggle              "nul"
 set_kv input_exit_emulator            "nul"
 
-# IMPORTANT: don't touch video_fullscreen, video_context_driver,
-# aspect_ratio_index, video_force_aspect, or video_aspect_ratio* on
-# this hardware. RetroArch's auto-detection of all those Just Works
-# for the 320x240 ILI9341 panel; any attempt to pin them produces
-# either a blank panel, a stretched menu, or both. The working
-# defaults are: video_fullscreen=false, aspect_ratio_index=22 (Custom
-# viewport), auto-detected video_context_driver. Trust them.
+# # IMPORTANT: don't touch video_fullscreen, video_context_driver,
+# # aspect_ratio_index, video_force_aspect, or video_aspect_ratio* on
+# # this hardware. RetroArch's auto-detection of all those Just Works
+# # for the 320x240 ILI9341 panel; any attempt to pin them produces
+# # either a blank panel, a stretched menu, or both. The working
+# # defaults are: video_fullscreen=false, aspect_ratio_index=22 (Custom
+# # viewport), auto-detected video_context_driver. Trust them.
+# #
+# # DO set menu_rgui_aspect_ratio_lock = 1 (Fit Screen) — this is
+# # RGUI-specific and only affects how the menu is scaled relative to
+# # the current video viewport. Without it, opening the main menu after
+# # a game with an unusual viewport shows squished text. (We don't use
+# # the in-game Quick Menu overlay either way — see the input_close_content
+# # block below.)
+# # menu_rgui_aspect_ratio is INTEGER-valued (0-6, indexes into a fixed
+# # preset list), NOT a string. Don't pass "4:3" / "Auto" / etc — it
+# # breaks rendering and the panel goes black.
+# # 0 = 4:3 (default), 1 = 16:9, 2 = 16:9C, 3 = 3:2, 4 = 3:2C, 5 = 5:3, 6 = 5:3C
+# set_kv menu_rgui_aspect_ratio         "0"
+# # 1 = Fit Screen: preserves the menu's bitmap font aspect (so text
+# # isn't squished) at the cost of possible letterboxing. Value 3 (Fill
+# # Screen) stretches and distorts the font; 2 (Integer Scale) limits to
+# # Nx scaling. On our 320x240 4:3 panel with a 4:3 menu, "Fit" results
+# # in no letterbox AND no distortion.
+# set_kv menu_rgui_aspect_ratio_lock    "1"
 #
-# DO set menu_rgui_aspect_ratio_lock = 1 (Fit Screen) — this is
-# RGUI-specific and only affects how the menu is scaled relative to
-# the current video viewport. Without it, opening the main menu after
-# a game with an unusual viewport shows squished text. (We don't use
-# the in-game Quick Menu overlay either way — see the input_close_content
-# block below.)
-# menu_rgui_aspect_ratio is INTEGER-valued (0-6, indexes into a fixed
-# preset list), NOT a string. Don't pass "4:3" / "Auto" / etc — it
-# breaks rendering and the panel goes black.
-# 0 = 4:3 (default), 1 = 16:9, 2 = 16:9C, 3 = 3:2, 4 = 3:2C, 5 = 5:3, 6 = 5:3C
-set_kv menu_rgui_aspect_ratio         "0"
-# 1 = Fit Screen: preserves the menu's bitmap font aspect (so text
-# isn't squished) at the cost of possible letterboxing. Value 3 (Fill
-# Screen) stretches and distorts the font; 2 (Integer Scale) limits to
-# Nx scaling. On our 320x240 4:3 panel with a 4:3 menu, "Fit" results
-# in no letterbox AND no distortion.
-set_kv menu_rgui_aspect_ratio_lock    "1"
-
-# Custom viewport: 264x240 centered on the 320x240 panel matches the
-# Zega Mame Boy 2.7's case cutout. The 28px on each side fall behind
-# the case bezel and are invisible. Vendor's Buster image used the
-# same dimensions (hdmi_cvt = 264 240 ...).
-set_kv aspect_ratio_index             "22"
-set_kv custom_viewport_width          "264"
-set_kv custom_viewport_height         "240"
-set_kv custom_viewport_x              "28"
-set_kv custom_viewport_y              "0"
+# # Custom viewport: 264x240 centered on the 320x240 panel matches the
+# # Zega Mame Boy 2.7's case cutout. The 28px on each side fall behind
+# # the case bezel and are invisible. Vendor's Buster image used the
+# # same dimensions (hdmi_cvt = 264 240 ...).
+# set_kv aspect_ratio_index             "22"
+# set_kv custom_viewport_width          "264"
+# set_kv custom_viewport_height         "240"
+# set_kv custom_viewport_x              "28"
+# set_kv custom_viewport_y              "0"
 #
 # ---------------------------------------------------------------------------
 # Step 4. systemd unit.

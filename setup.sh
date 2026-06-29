@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 #curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | sh
 ME=$(whoami)
-
+set -euo pipefail
+cd $HOME
 sudo apt install -y git zsh snapd retroarch device-tree-compiler python3 python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger > /dev/null 
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 runScript(){
-    curl "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$0.sh" | sudo bash -c
+    curl "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
 }
 for subscript in display audio buttons retroarch firstrun pygame-shim wifi-template; do
     runScript subscript;
-end;
-
+done;
+mkdir -p .config/retroarch roms/pygame
 curl -o .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
 curl -o roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
 
