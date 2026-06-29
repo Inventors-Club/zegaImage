@@ -12,7 +12,7 @@ runScript(){
     curl "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
 }
 for subscript in display audio buttons retroarch firstrun pygame-shim wifi-template; do
-    runScript subscript;
+    runScript "$subscript";
 done;
 mkdir -p .config/retroarch roms/pygame
 curl -o .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
