@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# zega-pygame-rescan
+#
+# Rebuild ~oli/.config/retroarch/playlists/Pygame.lpl from the .py files
+# currently in /home/oli/roms/pygame/. Run this after adding or removing
+# games so RetroArch's menu reflects what's actually on disk.
+#
+# Usage: zega-pygame-rescan
+# (Run as the oli user; no sudo needed.)
+
+set -euo pipefail
+
+ROMS_DIR="${HOME}/roms/pygame"
+PLAYLIST_DIR="${HOME}/.config/retroarch/playlists"
+PLAYLIST="${PLAYLIST_DIR}/Pygame.lpl"
+CORE="/usr/lib/libretro/pygame_shim_libretro.so"
+
+mkdir -p "${PLAYLIST_DIR}"
+
+# Collect .py files (handle empty glob).
+shopt -s nullglob
+files=("${ROMS_DIR}"/*.py)
+shopt -u nullglob
+
+# Build the JSON playlist by hand. Format is RetroArch 1.9+ JSON playlists.
+{
+    printf '{\n'
+    printf '  "version": "1.5",\n'
+    printf '  "default_core_path": "%s",\n' "${CORE}"
+    printf '  "default_core_name": "Pygame Shim (zega)",\n'
+    printf '  "base_content_directory": "",\n'
+    printf '  "label_display_mode": 0,\n'
+    printf '  "right_thumbnail_mode": 0,\n'
+    printf '  "left_thumbnail_mode": 0,\n'
+    printf '  "thumbnail_match_mode": 0,\n'
+    printf '  "sort_mode": 0,\n'
+    printf '  "items": [\n'
+
+    sep=""
+    for f in "${files[@]}"; do
+        name="$(basename "${f}" .py)"
+        # Light JSON-escape: backslash + double-quote.
+        esc_path="${f//\\/\\\\}"; esc_path="${esc_path//\"/\\\"}"
+        esc_name="${name//\\/\\\\}"; esc_name="${esc_name//\"/\\\"}"
+
+        printf '%s' "${sep}"
+        printf '    {\n'
+        printf '      "path": "%s",\n'         "${esc_path}"
+        printf '      "label": "%s",\n'        "${esc_name}"
+        printf '      "core_path": "%s",\n'    "${CORE}"
+        printf '      "core_name": "Pygame Shim (zega)",\n'
+        printf '      "crc32": "00000000|crc",\n'
+        printf '      "db_name": "Pygame.lpl"\n'
+        printf '    }'
+        sep=$',\n'
+    done
+    printf '\n  ]\n}\n'
+} > "${PLAYLIST}"
+
+# Sanity-check that we wrote valid JSON.
+if command -v python3 >/dev/null; then
+    python3 -c "import json,sys; json.load(open(sys.argv[1]))" "${PLAYLIST}" \
+        || { echo "ERROR: ${PLAYLIST} is not valid JSON" >&2; exit 1; }
+fi
+
+echo "Wrote ${PLAYLIST} with ${#files[@]} entries:"
+for f in "${files[@]}"; do echo "  - $(basename "${f}" .py)"; done
+
+echo
+echo "Restart RetroArch to pick up the new playlist:"
+echo "  sudo systemctl restart retroarch.service"
