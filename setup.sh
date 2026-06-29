@@ -22,8 +22,8 @@ for subscript in display audio buttons retroarch firstrun pygame-shim wifi-templ
     runScript "$subscript";
 done;
 mkdir -p .config/retroarch roms/pygame
-curl -ofL .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
-curl -ofL roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
+curl -fLo .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
+curl -fLo roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
 
 uv venv --python 3.12 roms/pygame/.venv
 uv add  --python      roms/pygame/.venv/bin/python pygame-ce
