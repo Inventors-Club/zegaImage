@@ -14,7 +14,7 @@ sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 runScript(){
-    curl "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
+    curl -fL "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
 }
 sudo curl -fLo /usr/local/bin/zega-pygame-rescan "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/zega-pygame-rescan"
 chmod +x /usr/local/bin/zega-pygame-rescan
@@ -22,8 +22,8 @@ for subscript in display audio buttons retroarch firstrun pygame-shim wifi-templ
     runScript "$subscript";
 done;
 mkdir -p .config/retroarch roms/pygame
-curl -o .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
-curl -o roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
+curl -ofL .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
+curl -ofL roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
 
 uv venv --python 3.12 roms/pygame/.venv
 uv add  --python      roms/pygame/.venv/bin/python pygame-ce

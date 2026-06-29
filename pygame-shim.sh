@@ -58,7 +58,7 @@ apt_install_if_missing python3-pygame || { echo "ERROR: python3-pygame install f
 echo "[2/5] Compiling pygame_shim_libretro.so..."
 
 BUILD_DIR="$(mktemp -d)"
-cat "$BUILD_DIR/pygame_shim.c" << 'PYGAME_SHIM_C'
+cat > "$BUILD_DIR/pygame_shim.c" << 'PYGAME_SHIM_C'
 /*
  * pygame_shim.c — minimal libretro shim core for pygame games.
  *
@@ -279,7 +279,6 @@ void *retro_get_memory_data(unsigned id) { (void)id; return NULL; }
 size_t retro_get_memory_size(unsigned id) { (void)id; return 0; }
 PYGAME_SHIM_C
 trap 'rm -rf "${BUILD_DIR}"' EXIT
-cp "${SCRIPT_DIR}/pygame_shim.c" "${BUILD_DIR}/"
 gcc -O2 -fPIC -Wall -Wextra -shared \
     -o "${BUILD_DIR}/pygame_shim_libretro.so" \
     "${BUILD_DIR}/pygame_shim.c"
