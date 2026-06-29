@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | sh
+#curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/setup.sh | bash
 ME=$(whoami)
 set -euo pipefail
 cd $HOME
@@ -8,7 +8,7 @@ if [[ $EUID -eq 0 ]]; then
     echo "Run as your regular user (NOT sudo). The script will sudo where needed." >&2
     exit 1
 fi
-sudo apt install -y git zsh retroarch ripgrep device-tree-compiler python3 cargo python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger > /dev/null 
+sudo apt-get install -y git zsh retroarch ripgrep device-tree-compiler python3 cargo python3-spidev python3-gpiozero wget ca-certificates gcc python3-pygame libc6-dev tmux ranger
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
@@ -127,7 +127,7 @@ Next steps:
     Run \x1b[1;35m sudo nmcli connection add type wifi ifname wlan0 con-name "<Network Nickname>" ssid "<Network SSID (Real name)>" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<Network Password>"\x1b[0;39m
     Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b39m on your computer) file.
 
-Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | sh\x1b[0;39m
+Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | bash\x1b[0;39m
 For other scripts to run without ssh, have a look at the \x1b[1;36m/boot/firmware/firstrun\x1b[0;39m folder. Any .sh files in here will run at startup.
 
 Rebooting.
