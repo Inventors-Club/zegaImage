@@ -17,7 +17,7 @@ trap 'echo; echo "ERROR: failed at line $LINENO. Last command: $BASH_COMMAND" >&
 
 [[ $EUID -eq 0 ]] || { echo "Run as root." >&2; exit 1; }
 
-USER_NAME=${SUDO_USER:-USER}
+USER_NAME=${SUDO_USER:-$USER}
 id "${USER_NAME}" >/dev/null 2>&1 \
     || { echo "ERROR: user '${USER_NAME}' does not exist." >&2; exit 1; }
 
