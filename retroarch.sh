@@ -99,7 +99,7 @@ fi
 sudo -u "${USER_NAME}" mkdir -p "${USER_HOME}/.config/retroarch/cores"
 # set_kv libretro_directory             "~/.config/retroarch/cores"
 # set_kv core_updater_buildbot_cores_url \
-    "http://buildbot.libretro.com/nightly/linux/aarch64/latest/"
+#    "http://buildbot.libretro.com/nightly/linux/aarch64/latest/"
 
 # Kiosk-style: don't let RetroArch save its in-memory config back to
 # retroarch.cfg on exit. Without this, RetroArch overwrites our cfg
