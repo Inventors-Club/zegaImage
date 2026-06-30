@@ -133,16 +133,24 @@ xterm-ghostty|ghostty|Ghostty,
         xr=\EP>\\|[ -~]+a\E\\,
 EOF
 
-cat << 'EOF'
-Next steps: 
+curl -OL https://github.com/neovim/neovim/releases/download/latest/nvim-linux-arm64.tar.gz
+tar xzvf nvim-linux-arm64.tar.gz
+mv nvim-linux-arm64/* .local/
+rm nvim-linux-arm-64.tar.gz
+
+mkdir .config/nvim
+curl -o .config/nvim/init.lua https://raw.githubusercontent.com/VonHeikemen/nvim-light/refs/heads/main/configs/stable.lua
+
+printf '%b' '
+Next steps:
 
 \033[1mWifi:\033[0m
-    Run \x1b[1;35m sudo nmcli connection add type wifi ifname wlan0 con-name "<Network Nickname>" ssid "<Network SSID (Real name)>" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "<Network Password>"\x1b[0;39m
-    Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b39m on your computer) file.
+    Run \x1b[1;35msudo nmcli connection add type wifi ifname wlan0 con-name "\x1b[33m<Network Nickname>\x1b[35m" ssid "\x1b[33m<Network SSID (Real name)>\x1b[35m" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "\x1b[33m<Network Password>\x1b[35m"\x1b[0;39m
+    Or, if ssh is a problem, have a look at the \x1b[1;36m/boot/firmware/wifi.txt\x1b[0;39m (\x1b[36mbootfs/wifi.txt\x1b[39m on your computer) file.
 
-Check out \x1b[1;35m curl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | bash\x1b[0;39m
+Check out \x1b[1;35mcurl -LsSf https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/extras.sh | bash\x1b[0;39m
 For other scripts to run without ssh, have a look at the \x1b[1;36m/boot/firmware/firstrun\x1b[0;39m folder. Any .sh files in here will run at startup.
 
-Rebooting.
-EOF
+\x1b[5mRebooting.
+'
 sudo reboot
