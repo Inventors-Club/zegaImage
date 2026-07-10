@@ -133,13 +133,15 @@ xterm-ghostty|ghostty|Ghostty,
         xr=\EP>\\|[ -~]+a\E\\,
 EOF
 
-curl -OL https://github.com/neovim/neovim/releases/download/latest/nvim-linux-arm64.tar.gz
+curl -fOL https://github.com/neovim/neovim/releases/latest/download/nvim-linux-arm64.tar.gz
 tar xzvf nvim-linux-arm64.tar.gz
 mv nvim-linux-arm64/* .local/
-rm nvim-linux-arm-64.tar.gz
+rm nvim-linux-arm64.tar.gz
+rm -rf nvim-linux-arm64
 
-mkdir .config/nvim
-curl -o .config/nvim/init.lua https://raw.githubusercontent.com/VonHeikemen/nvim-light/refs/heads/main/configs/stable.lua
+mkdir -p .config
+mkdir -p .config/nvim
+curl -fo .config/nvim/init.lua https://raw.githubusercontent.com/VonHeikemen/nvim-light/refs/heads/main/configs/stable.lua
 
 printf '%b' '
 Next steps:
