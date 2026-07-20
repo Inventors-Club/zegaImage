@@ -9,10 +9,15 @@ set -euo pipefail
 cd $HOME
 
 if [[ $EUID -eq 0 ]]; then
-    echo "Run as your regular user (NOT sudo). The script will sudo where needed." >&2
-    exit 1
+  echo "Run as your regular user (NOT sudo). The script will sudo where needed." >&2
+  exit 1
 fi
-sudo tee /etc/NetworkManager/conf.d/wifi-powersave-off.conf > /dev/null <<'EOF'
+
+sudo sed -i.bak 's/http:\/\/raspbian.raspberrypi.org/https:\/\/raspbian.raspberrypi.org/g' /etc/apt/sources.list
+sudo sed -i.bak 's/http:\/\/archive.raspberrypi.org/https:\/\/archive.raspberrypi.org/g' /etc/apt/sources.list.d/*.list
+sudo apt update
+
+sudo tee /etc/NetworkManager/conf.d/wifi-powersave-off.conf >/dev/null <<'EOF'
 [connection]
 wifi.powersave = 2
 EOF
@@ -24,17 +29,17 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 sudo chsh -s $(which zsh) $ME
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-runScript(){
-    curl -fL "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash 
+runScript() {
+  curl -fL "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/$1.sh" | sudo bash
 }
 sudo curl -fLo /usr/local/bin/zega-pygame-rescan "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/zega-pygame-rescan"
 sudo chmod +x /usr/local/bin/zega-pygame-rescan
 for subscript in display audio buttons retroarch firstrun pygame-shim wifi-template; do
-    runScript "$subscript";
-done;
+  runScript "$subscript"
+done
 mkdir -p .config/retroarch roms/pygame
 curl -fLo .config/retroarch/retroarch.cfg "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/retroarch.cfg"
-curl -fLo roms/pygame/platformer.py       "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
+curl -fLo roms/pygame/platformer.py "https://raw.githubusercontent.com/Inventors-Club/zegaImage/refs/heads/main/platformer.py"
 
 source $HOME/.local/bin/env
 cd roms/pygame
@@ -45,12 +50,12 @@ cd "$HOME"
 
 zega-pygame-rescan
 
-cat > .tmux.conf << 'EOF'
+cat >.tmux.conf <<'EOF'
 set -s set-clipboard on
 set -as terminal-features ',rxvt-unicode-256color:clipboard'
 EOF
 
-tic -x - << 'EOF'
+tic -x - <<'EOF'
 xterm-ghostty|ghostty|Ghostty,
         am, bce, ccc, hs, km, mc5i, mir, msgr, npc, xenl, AX, Su, Tc, XT, fullkbd,
         colors#256, cols#80, it#8, lines#24, pairs#32767,
