@@ -13,7 +13,7 @@ if [[ $EUID -eq 0 ]]; then
   exit 1
 fi
 
-sudo sed -i.bak 's/http:\/\/raspbian.raspberrypi.org/https:\/\/raspbian.raspberrypi.org/g' /etc/apt/sources.list/debian.sources
+sudo sed -i.bak 's/http:\/\/raspbian.raspberrypi.org/https:\/\/raspbian.raspberrypi.org/g' /etc/apt/sources.list.d/debian.sources
 sudo sed -i.bak 's/http:\/\/archive.raspberrypi.org/https:\/\/archive.raspberrypi.org/g' /etc/apt/sources.list.d/raspi.sources
 sudo apt update
 
